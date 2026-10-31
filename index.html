@@ -5709,7 +5709,14 @@ function launch(g,f,t,cid,sel){var c=CI[cid],e={f:f,t:t,c:cid,s:"att"};if(c.sc==
 function histHtml(){var rows=[],seq=TN.seq.slice();Object.keys(TN.mal).forEach(function(g){if(seq.indexOf(+g)<0)seq.push(+g)});
  seq.forEach(function(g){(TN.mal[g]||[]).forEach(function(m){var c=CI[m.c];rows.push('<div class="card">'+c.em+' <b>'+E(c.n)+'</b> <span class="muted">('+(c.k==="d"?'devastante':'normale')+')</span><div class="sm">'+E(TN.names[m.f])+' → '+E(TN.names[m.t])+' · '+GM[g][2]+' '+E(GM[g][1])+mdesc(m,g)+'</div></div>')})});
  return rows.length?'<div class="stack"><h3>Storico Malus</h3>'+rows.join("")+'</div>':''}
-function panelView(){var done=TN.bonus&&TN.bonus.done,sv=window.__bomb.saved();return '<div class="top"><button class="btn small ghost" data-m="lobby">Torneo</button></div><div class="stack bm-panel"><p class="label">Solo per il presentatore</p><h2>Pannello presentatore</h2><p class="muted">Qui trovi i comandi riservati che i concorrenti non devono vedere.</p>'+(done?'<div class="card"><p>💣 Il gioco bonus è già stato giocato: i punti sono già nella classifica.</p></div>':(sv?'<button class="btn bigbtn" data-m="bonusres">RIPRENDI GIOCO BONUS 💣</button>':'<button class="btn bigbtn" data-m="bonus">ATTIVA GIOCO BONUS 💣</button>'))+'<button class="btn" data-bk="open">💾 Backup e ripristino</button></div>'}
+function panelView(){var done=TN.bonus&&TN.bonus.done,sv=window.__bomb.saved();return '<div class="top"><button class="btn small ghost" data-m="lobby">Torneo</button></div><div class="stack bm-panel"><p class="label">Solo per il presentatore</p><h2>Pannello presentatore</h2><p class="muted">Qui trovi i comandi riservati che i concorrenti non devono vedere.</p>'+(done?'<div class="card"><p>💣 Il gioco bonus è già stato giocato: i punti sono già nella classifica.</p></div>':(sv?'<button class="btn bigbtn" data-m="bonusres">RIPRENDI GIOCO BONUS 💣</button>':'<button class="btn bigbtn" data-m="bonus">ATTIVA GIOCO BONUS 💣</button>'))+'<button class="btn" data-bk="open">💾 Backup e ripristino</button>'+skipBox()+'</div>'}
+function skipTarget(){return (TN.cur>=0&&!TN.done[TN.cur])?TN.cur:TN.done.indexOf(null)}
+function skipBox(){var g=skipTarget();if(g<0)return '';return '<div class="card" style="border-color:var(--bad,#ff4d5a)"><p class="label">🧪 Solo per i test</p><p class="muted sm">Salta il gioco «'+E(GM[g][1].replace(" · Gran finale",""))+'» assegnando risultati casuali: i punti, la classifica e il Sorpasso funzionano come al solito.</p><button class="btn" data-m="skipg">'+(V.sk?'CONFERMA: salta questo gioco':'⏭ Salta questo gioco (test)')+'</button></div>'}
+function skipGame(){var g=skipTarget();if(g<0)return;TN.cur=g;if(TN.seq.indexOf(g)<0){TN.seq.push(g);fixAll();tsv()}
+ if(duelFmt(g)){var D=ensureDu(g);D.d.forEach(function(x,k){if(x.w===null)setDuel(D,k,rnd(2))});
+  [0,1].forEach(function(pi){if(qualOf(D,pi)<0){var t=tbOf(D,pi);t.p=[0,0];t.w=rnd(2)}});
+  if(D.sf.w===null){D.sf.p=[rnd(3),rnd(3)];D.sf.w=rnd(2)}D.fin=true;tsv();var pp=duPts(D);window.__tn.report(pp,pp);return}
+ var sc=TN.names.map(function(){return rnd(16)});window.__tn.report(sc)}
 function commitBonus(rank){if(!TN.bonus||!TN.bonus.done){var n=TN.names.length,p=[],i;for(i=0;i<n;i++)p.push(0);rank.forEach(function(t,k){p[t]=2*(PT[k]||0)});TN.bonus={done:true,p:p,rank:rank};tsv()}return {pts:TN.bonus.p,totals:totals().t}}
 function bombStart(resume){cb=null;window.__bomb.start({names:TN.names,resume:resume,commit:commitBonus,onExit:function(){V={k:"lobby"};lobbyView()}})}
 function lobbyView(){applyCols();cb=lobbyView;ensureM();if(duV())return;if(V.k==="panel"){setView(panelView());return}if(V.k==="draw"){setView(drawList());return}if(V.k==="dteam"){setView(dteamView());return}if(V.k==="mal"){setView(malView());return}if(V.k==="mteam"){setView(mteamView());return}
@@ -5880,6 +5887,7 @@ document.addEventListener("click",function(e){var el=e.target.closest("[data-tn]
 document.addEventListener("click",function(e){var el=e.target.closest("[data-m]");if(!el||el.disabled||!TN.on)return;var a=el.getAttribute("data-m");ensureM();if(duAct(a,el))return;
  if(a==="lobby"){V={k:"lobby"};lobbyView()}
  else if(a==="panel"){V={k:"panel"};lobbyView()}
+ else if(a==="skipg"){if(!V.sk){V.sk=1;V.k="panel";lobbyView();return}V.sk=0;skipGame()}
  else if(a==="bonus"){bombStart(false)}
  else if(a==="bonusres"){bombStart(true)}
  else if(a==="draw"){V={k:"draw"};lobbyView()}
