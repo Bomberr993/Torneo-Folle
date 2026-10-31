@@ -4552,7 +4552,7 @@ function vSettings(){var h='<div class="top"><h2>Impostazioni</h2><button class=
  h+='<div class="card">'+st("seconds","Tempo a testa","Ogni sfidante parte con questo tempo")+st("interval","Nuova lettera","Ogni quanti secondi si scopre una lettera")+'<div class="setting"><div class="sp"><div class="name">Difficoltà parole</div><div class="hint">'+(W.e.length+W.m.length+W.h.length)+' parole in totale</div></div><div class="seg">'+b+'</div></div>'+sw("sound","Suoni","Ticchettio negli ultimi 10 secondi")+sw("vibrate","Vibrazione","Funziona su Android")+'</div>';
  h+='<button class="btn ghost" data-dw="resetseen">Rimetti tutte le parole nel mazzo</button>';return h}
 function wordHtml(){var w=G.cur,h="";if(G.phase==="pause")return '<span class="dwpause">PAUSA</span>';
- for(var i=0;i<w.w.length;i++){var on=false;for(var j=0;j<w.k;j++)if(w.ord[j]===i)on=true;h+='<span class="dwl'+(on?' on':'')+'">'+(on?E(w.w.charAt(i).toUpperCase()):'')+'</span>'}return h}
+ for(var i=0;i<w.w.length;i++){var on=false;for(var j=0;j<Math.min(w.k,Math.max(0,w.w.length-1));j++)if(w.ord[j]===i)on=true;h+='<span class="dwl'+(on?' on':'')+'">'+(on?E(w.w.charAt(i).toUpperCase()):'')+'</span>'}return h}
 function panel(i){var s=G.sd[i],on=G.phase==="run"&&G.turn===i,lost=G.phase==="end"&&G.loser===i;
  return '<div class="dwp c'+s.t+(on?' act':'')+(lost?' lost':'')+'" id="dwp'+i+'"><span class="dwtag">'+(G.turn===i&&G.phase!=="idle"&&G.phase!=="end"?'<i class="led"></i> TURNO':(i?'B':'A'))+'</span><div class="dwn">'+E(s.name)+'</div><div class="dws">'+(s.mem.length?E(s.team):'&nbsp;')+'</div><div class="dwt" id="dwt'+i+'">'+fmt(G.rem[i])+'</div></div>'}
 function vPlay(){var h='<div class="top"><span class="label">Duello delle parole</span><button class="btn small ghost" data-dw="menu">Esci</button></div>';
@@ -4571,7 +4571,7 @@ function render(){var h;if(scr==="menu")h=vMenu();else if(scr==="settings")h=vSe
 function newGame(){fixSel();var a=side(sel.a),b=side(sel.b);G={sd:[a,b],rem:[Math.max(5,S.seconds-((DU&&DU.o&&DU.o[0]&&DU.o[0].minusSec)||0))*1000,Math.max(5,S.seconds-((DU&&DU.o&&DU.o[1]&&DU.o[1].minusSec)||0))*1000],turn:0,phase:"idle",cur:null,last:0,sol:false,cnt:[0,0],used:{},loser:-1,confirmReset:false,lastBeep:-1};scr="play";render()}
 function begin(){initAudio();lockScreen();G.cur=pickWord();G.phase="run";G.turn=0;G.last=Date.now();beep(880,.2);buzzv(30);render()}
 function advance(){if(G.phase!=="run")return;var n=Date.now(),dt=Math.max(0,n-G.last);G.last=n;G.rem[G.turn]=Math.max(0,G.rem[G.turn]-dt);G.cur.el+=dt}
-function tick(){if(scr!=="play"||!G||G.phase!=="run")return;advance();var i=G.turn,w=G.cur,k=Math.min(w.w.length,Math.floor(w.el/(S.interval*1000)));
+function tick(){if(scr!=="play"||!G||G.phase!=="run")return;advance();var i=G.turn,w=G.cur,k=Math.min(Math.max(0,w.w.length-1),Math.floor(w.el/(S.interval*1000)));
  var t=document.getElementById("dwt"+i);if(t){t.textContent=fmt(G.rem[i]);t.classList.toggle("low",G.rem[i]<10000)}
  if(k!==w.k){w.k=k;var el=document.getElementById("dwword");if(el)el.innerHTML=wordHtml()}
  var s=Math.ceil(G.rem[i]/1000);if(G.rem[i]>0&&G.rem[i]<10000&&s!==G.lastBeep){G.lastBeep=s;beep(s<=3?880:660,.09);buzzv(15)}
