@@ -693,7 +693,7 @@ function vPlay(){var t=G.turn,left=S.maxSkips?Math.max(0,S.maxSkips-t.skips):nul
  h+='<p class="muted" style="text-align:center;font-size:.9rem">Indizi: '+CLUE[S.clueWords]+'</p>';
  h+='<div class="actions"><button class="btn ok" data-act="ok">Indovinata</button><button class="btn" data-act="skip"'+(left===0||t.np?" disabled":"")+'>Passa'+(S.skipPenalty?" (−"+S.skipPenalty+")":"")+(left!==null?' · '+left+' rimasti':'')+'</button><button class="btn err" data-act="err">Errore'+(S.errPenalty?" (−"+S.errPenalty+")":"")+'</button><button class="btn ghost wide" data-act="pause">Pausa</button></div>';
  return h}
-function turnPoints(){var ok=0,sk=0,er=0;G.turn.items.forEach(function(x){if(x.st==="ok")ok++;else if(x.st==="skip")sk++;else if(x.st==="err")er++});var p0=Math.max(0,ok-sk*S.skipPenalty-er*S.errPenalty);return(G.mf&&G.mf.minus)?Math.max(0,p0-G.mf.minus):p0}
+function turnPoints(){var p0=0;G.turn.items.forEach(function(x){if(x.st==="ok")p0++;else if(x.st==="skip")p0=Math.max(0,p0-S.skipPenalty);else if(x.st==="err")p0=Math.max(0,p0-S.errPenalty)});return(G.mf&&G.mf.minus)?Math.max(0,p0-G.mf.minus):p0}
 function vSummary(){var t=G.turn,h='<div class="stack"><p class="label">Tempo scaduto</p><div class="bigteam c'+G.team+'"><span class="dot"></span><h2>'+esc(tname(G.team))+'</h2></div></div>';
  var p=turnPoints();
  h+='<div class="card row"><div class="sp"><p class="muted">Punti del turno</p></div><div class="bigpts" style="color:'+(p<0?"var(--bad)":"var(--fg)")+'">'+(p>0?"+":"")+p+'</div></div>';
